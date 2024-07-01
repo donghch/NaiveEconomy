@@ -8,6 +8,7 @@ import me.henrydhc.naiveeconomy.economy.MainEconomy;
 import me.henrydhc.naiveeconomy.lang.LangLoader;
 import me.henrydhc.naiveeconomy.listeners.EconomyListener;
 import me.henrydhc.naiveeconomy.permission.PermissionManager;
+import me.henrydhc.naiveeconomy.tabcomplete.TabCompletor;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -79,6 +80,7 @@ public class NaiveEconomy extends JavaPlugin {
 
         // Register commands
         getCommand("economy").setExecutor(new CmdDispatcher(economy, connector));
+        getCommand("economy").setTabCompleter(new TabCompletor());
 
         // Register Listeners
         getServer().getPluginManager().registerEvents(new EconomyListener(economy), this);

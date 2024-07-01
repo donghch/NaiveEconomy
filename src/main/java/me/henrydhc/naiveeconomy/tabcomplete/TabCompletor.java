@@ -12,7 +12,7 @@ import java.util.List;
 public class TabCompletor implements TabCompleter {
 
     private static List<String> FIRST_LEVEL = List.of(
-        "pay"
+        "pay", "set", "take", "give"
     );
 
     @Override

@@ -1,5 +1,6 @@
 package me.henrydhc.naiveeconomy.cmdhandler;
 
+import me.henrydhc.naiveeconomy.lang.LangLoader;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -44,9 +45,13 @@ public class CmdPaymentHandler {
         }
 
         economy.depositPlayer(receiver, amount);
-        payer.sendMessage("Transaction Complete");
+        payer.sendMessage(LangLoader.getMessage("onSenderSend").replace("{PLAYER}", receiver.getName())
+            .replace("{AMOUNT}", economy.format(amount))
+            .replace("{UNIT}", "金币"));
         if (receiver.isOnline()) {
-            receiver.sendMessage(String.format("You get %s from %s", amount.toString(), payer.getName()));
+            payer.sendMessage(LangLoader.getMessage("onReceiverGet").replace("{PLAYER}", payer.getName())
+                .replace("{AMOUNT}", economy.format(amount))
+                .replace("{UNIT}", "金币"));
         }
         return true;
 

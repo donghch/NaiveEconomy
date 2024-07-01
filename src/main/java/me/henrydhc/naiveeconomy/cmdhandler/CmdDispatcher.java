@@ -23,35 +23,48 @@ public class CmdDispatcher implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
 
-        if (!(commandSender instanceof Player)) {
-            commandSender.sendMessage("Only player can use this command!");
-            return true;
-        }
-
-        Player player = (Player) commandSender;
-
         switch (strings[0]) {
             case "pay":
-                return paymentHandler.doPayment(player, strings);
+                if (!(commandSender instanceof Player)) {
+                    commandSender.sendMessage("Only player can use this command!");
+                    return true;
+                }
+                return paymentHandler.doPayment((Player) commandSender, strings);
             case "set":
                 if (strings.length < 3) {
                     return true;
                 }
-                return accountHandler.setBalance(player, strings);
+                if (!commandSender.hasPermission("naiveeconomy.set")) {
+                    commandSender.sendMessage(LangLoader.getMessage("noPerm"));
+                    return true;
+                }
+                return accountHandler.setBalance(commandSender, strings);
             case "give":
                 if (strings.length < 3) {
                     return true;
                 }
-                return accountHandler.giveMoney(player, strings);
+                if (!commandSender.hasPermission("naiveeconomy.give")) {
+                    commandSender.sendMessage(LangLoader.getMessage("noPerm"));
+                    return true;
+                }
+                return accountHandler.giveMoney(commandSender, strings);
             case "take":
                 if (strings.length < 3) {
                     return true;
                 }
-                return accountHandler.takeMoney(player, strings);
+                if (!commandSender.hasPermission("naiveeconomy.take")) {
+                    commandSender.sendMessage(LangLoader.getMessage("noPerm"));
+                    return true;
+                }
+                return accountHandler.takeMoney(commandSender, strings);
             case "balance":
-                return accountHandler.getBalance(player);
+                if (!(commandSender instanceof Player)) {
+                    commandSender.sendMessage("Only player can use this command!");
+                    return true;
+                }
+                return accountHandler.getBalance((Player) commandSender);
             case "info":
-                player.sendMessage(LangLoader.getPluginInfo());
+                commandSender.sendMessage(LangLoader.getPluginInfo());
                 return true;
             default:
                 return true;

@@ -6,6 +6,8 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 public class MainEconomy implements Economy {
@@ -40,7 +42,13 @@ public class MainEconomy implements Economy {
 
     @Override
     public String format(double v) {
-        return "";
+        // 创建一个DecimalFormat对象，用于格式化数字
+        NumberFormat formatter = new DecimalFormat("#,###.00");
+
+        // 格式化金额
+        String formattedAmount = formatter.format(v);
+
+        return formattedAmount;
     }
 
     @Override

@@ -12,7 +12,8 @@ public class PermissionManager {
     private static Map<String, PermissionDefault> nodes = Map.of(
         "pay", PermissionDefault.TRUE,
         "set", PermissionDefault.OP,
-        "give", PermissionDefault.OP
+        "give", PermissionDefault.OP,
+        "take", PermissionDefault.OP
     );
 
     public static void registerPermissions() {

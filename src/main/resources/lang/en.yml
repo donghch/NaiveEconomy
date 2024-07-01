@@ -3,14 +3,16 @@
 title: "&f[&eEconomy&f]"
 
 # Common Messages
-balance: "&aYour balance is &c{BALANCE} &6{UNIT}"
-
 # Register Message
 onRegister: "&aYour economy account has been registered"
+onSenderSend: "&aYou have sent &c{AMOUNT} &6{UNIT} &ato player &e{PLAYER}"
+onReceiverGet: "&aYou have received &c{AMOUNT} &6{UNIT} &afrom player &e{PLAYER}"
+balance: "&aYour balance is &c{BALANCE} &6{UNIT}"
+noPerm: "&cYou don't have permission to do this"
 
 
 
 # Admin messages
 # Placeholders {PLAYER}, {BALANCE}
 # Set balance
-setBalance: "&aPlayer &e{PLAYER}&a has balance &c{BALANCE} &6{UNIT}&e now."
+setBalance: "&aPlayer &e{PLAYER}&a has balance &c{BALANCE} &6{UNIT}& now."

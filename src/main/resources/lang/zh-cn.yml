@@ -4,7 +4,10 @@ title: "&f[&e经济&f]"
 # 通用信息
 # 经济账户注册成功
 onRegister: "&a经济账户注册成功"
+onSenderSend: "&a你向 &e{PLAYER} &a转账了 &c{AMOUNT} &6{UNIT}"
+onReceiverGet: "&a玩家 &e{PLAYER} &a想你转账了 &c{AMOUNT} &6{UNIT}"
 balance: "&a您的余额为 &c{BALANCE} &6{UNIT}"
+noPerm: "&c你没有足够的权限"
 
 # 管理员相关信息
 # 设置玩家余额

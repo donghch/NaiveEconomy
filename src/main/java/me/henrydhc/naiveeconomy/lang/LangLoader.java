@@ -19,7 +19,8 @@ public class LangLoader {
 
     private static String[] LANG_FIELDS = {
         "title", "onRegister", "setBalance",
-        "balance"
+        "balance", "onSenderSend", "onReceiverGet",
+        "noPerm"
     };
 
     private static List<String> SUPPORTED_LANG = List.of(

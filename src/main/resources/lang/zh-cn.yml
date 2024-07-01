@@ -1,0 +1,11 @@
+# 插件标题
+title: "&f[&e经济&f]"
+
+# 通用信息
+# 经济账户注册成功
+onRegister: "&a经济账户注册成功"
+balance: "&a您的余额为 &c{BALANCE} &6{UNIT}"
+
+# 管理员相关信息
+# 设置玩家余额
+setBalance: "&a玩家 &e{PLAYER}&a 的余额已被更改为 &c{BALANCE} &6{UNIT}&e."

@@ -3,7 +3,14 @@ author: dieshenke
 main: me.henrydhc.naiveeconomy.NaiveEconomy
 api-version: 1.20
 version: 1.0.0
-description: A simple economy plugin
+description: A simple economy plugin with Paper & Folia aupport
 folia-supported: true
+commands:
+  economy:
+    description: toggle payment
+    aliases:
+      - eco
+load: STARTUP
 depend:
   - Vault
+prefix: Economy

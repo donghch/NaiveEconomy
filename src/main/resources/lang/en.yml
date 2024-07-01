@@ -1,0 +1,16 @@
+
+# Title
+title: "&f[&eEconomy&f]"
+
+# Common Messages
+balance: "&aYour balance is &c{BALANCE} &6{UNIT}"
+
+# Register Message
+onRegister: "&aYour economy account has been registered"
+
+
+
+# Admin messages
+# Placeholders {PLAYER}, {BALANCE}
+# Set balance
+setBalance: "&aPlayer &e{PLAYER}&a has balance &c{BALANCE} &6{UNIT}&e now."

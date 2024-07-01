@@ -8,7 +8,10 @@ import java.util.List;
 
 public class ConfigLoader {
 
-    private static List<String> configFields = List.of();
+    private static List<String> configFields = List.of(
+        "currency-singular", "currency-plural"
+    );
+
     private static FileConfiguration configuration;
 
     public static boolean loadConfig() {

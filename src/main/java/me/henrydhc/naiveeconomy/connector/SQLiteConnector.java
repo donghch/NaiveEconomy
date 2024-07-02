@@ -31,7 +31,7 @@ public class SQLiteConnector implements Connector {
         connection = DriverManager.getConnection("jdbc:sqlite:plugins/NaiveEconomy/data.db");
         initDatabase();
         task = new AsyncCacheSaveTask(this, plugin);
-        Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task, 0, 10, TimeUnit.SECONDS);
+        Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task, 0, 1, TimeUnit.MINUTES);
     }
 
     @Override

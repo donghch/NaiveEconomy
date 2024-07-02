@@ -5,9 +5,12 @@ title: "&f[&e经济&f]"
 # 经济账户注册成功
 onRegister: "&a经济账户注册成功"
 onSenderSend: "&a你向 &e{PLAYER} &a转账了 &c{AMOUNT} &6{UNIT}"
-onReceiverGet: "&a玩家 &e{PLAYER} &a想你转账了 &c{AMOUNT} &6{UNIT}"
+onReceiverGet: "&a玩家 &e{PLAYER} &a向你转账了 &c{AMOUNT} &6{UNIT}"
 balance: "&a您的余额为 &c{BALANCE} &6{UNIT}"
 noPerm: "&c你没有足够的权限"
+invalidAmount: "&c输入金额无效"
+noMoney: "&c余额不足"
+playerNotExist: "&c玩家不存在"
 
 # 管理员相关信息
 # 设置玩家余额

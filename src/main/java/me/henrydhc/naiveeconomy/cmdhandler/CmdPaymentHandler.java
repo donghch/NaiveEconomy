@@ -17,7 +17,7 @@ public class CmdPaymentHandler {
     public boolean doPayment(Player payer, String[] args) {
 
         if (args.length < 3) {
-            payer.sendMessage("Invalid arguments");
+            payer.sendMessage(LangLoader.getMessage("invalidAmount"));
             return true;
         }
 
@@ -26,21 +26,21 @@ public class CmdPaymentHandler {
         try {
             amount = Double.parseDouble(args[2]);
             if (amount.isNaN() || amount <= 0) {
-                payer.sendMessage("Invalid amount");
+                payer.sendMessage(LangLoader.getMessage("invalidAmount"));
             }
         } catch (NumberFormatException e) {
-            payer.sendMessage("Invalid amount");
+            payer.sendMessage(LangLoader.getMessage("invalidAmount"));
             return true;
         }
 
         if (receiver == null) {
-            payer.sendMessage("Target player is not online!");
+            payer.sendMessage(LangLoader.getMessage("playerNotExist"));
             return true;
         }
 
         EconomyResponse result = economy.withdrawPlayer(payer, amount);
         if (!result.transactionSuccess()) {
-            payer.sendMessage("Failed to conduct payment");
+            payer.sendMessage(LangLoader.getMessage("noMoney"));
             return true;
         }
 

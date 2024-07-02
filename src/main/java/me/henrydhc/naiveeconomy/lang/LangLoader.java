@@ -20,7 +20,8 @@ public class LangLoader {
     private static String[] LANG_FIELDS = {
         "title", "onRegister", "setBalance",
         "balance", "onSenderSend", "onReceiverGet",
-        "noPerm"
+        "noPerm", "invalidAmount", "noMoney",
+        "playerNotExist"
     };
 
     private static List<String> SUPPORTED_LANG = List.of(

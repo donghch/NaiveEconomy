@@ -9,6 +9,9 @@ onSenderSend: "&aYou have sent &c{AMOUNT} &6{UNIT} &ato player &e{PLAYER}"
 onReceiverGet: "&aYou have received &c{AMOUNT} &6{UNIT} &afrom player &e{PLAYER}"
 balance: "&aYour balance is &c{BALANCE} &6{UNIT}"
 noPerm: "&cYou don't have permission to do this"
+invalidAmount: "&cInvalid amount"
+noMoney: "&cYou don't have enough money"
+playerNotExist: "&cPlayer does not exist"
 
 
 

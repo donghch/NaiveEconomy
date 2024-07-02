@@ -23,7 +23,7 @@ public class CmdAccountHandler {
 
         Player targetPlayer = Bukkit.getPlayer(args[1]);
         if (targetPlayer == null) {
-            sender.sendMessage("Target player does not exist");
+            sender.sendMessage(LangLoader.getMessage("playerNotExist"));
             return true;
         }
 
@@ -31,11 +31,11 @@ public class CmdAccountHandler {
         try {
             amount = Double.parseDouble(args[2]);
             if (amount.isNaN()) {
-                sender.sendMessage("Invalid Amount");
+                sender.sendMessage(LangLoader.getMessage("invalidAmount"));
                 return true;
             }
         } catch (NumberFormatException e) {
-            sender.sendMessage("Invalid Amount");
+            sender.sendMessage(LangLoader.getMessage("invalidAmount"));
             return true;
         }
 
@@ -55,7 +55,7 @@ public class CmdAccountHandler {
 
         Player targetPlayer = Bukkit.getPlayer(args[1]);
         if (targetPlayer == null) {
-            sender.sendMessage("Target player does not exist");
+            sender.sendMessage(LangLoader.getMessage("playerNotExist"));
             return true;
         }
 
@@ -63,17 +63,17 @@ public class CmdAccountHandler {
         try {
             amount = Double.parseDouble(args[2]);
             if (amount.isNaN() || amount < 0) {
-                sender.sendMessage("Invalid Amount");
+                sender.sendMessage(LangLoader.getMessage("invalidAmount"));
                 return true;
             }
         } catch (NumberFormatException e) {
-            sender.sendMessage("Invalid Amount");
+            sender.sendMessage(LangLoader.getMessage("invalidAmount"));
             return true;
         }
 
         EconomyResponse response = economy.depositPlayer(targetPlayer, amount);
         if (!response.transactionSuccess()) {
-            sender.sendMessage("Failed to give money");
+            sender.sendMessage(LangLoader.getMessage("noMoney"));
             return true;
         }
         sender.sendMessage(LangLoader.getMessage("setBalance").replace("{PLAYER}", targetPlayer.getName())
@@ -86,7 +86,7 @@ public class CmdAccountHandler {
 
         Player targetPlayer = Bukkit.getPlayer(args[1]);
         if (targetPlayer == null) {
-            sender.sendMessage("Target player does not exist");
+            sender.sendMessage(LangLoader.getMessage("playerNotExist"));
             return true;
         }
 
@@ -94,17 +94,17 @@ public class CmdAccountHandler {
         try {
             amount = Double.parseDouble(args[2]);
             if (amount.isNaN()) {
-                sender.sendMessage("Invalid Amount");
+                sender.sendMessage(LangLoader.getMessage("invalidAmount"));
                 return true;
             }
         } catch (NumberFormatException e) {
-            sender.sendMessage("Invalid Amount");
+            sender.sendMessage(LangLoader.getMessage("invalidAmount"));
             return true;
         }
 
         EconomyResponse response = economy.withdrawPlayer(targetPlayer, amount);
         if (!response.transactionSuccess()) {
-            sender.sendMessage("Failed to take money");
+            sender.sendMessage(LangLoader.getMessage("noMoney"));
             return true;
         }
         sender.sendMessage(LangLoader.getMessage("setBalance").replace("{PLAYER}", targetPlayer.getName())
@@ -122,7 +122,7 @@ public class CmdAccountHandler {
             return true;
         }
         player.sendMessage(LangLoader.getMessage("balance").replace("{PLAYER}", player.getName())
-            .replace("{BALANCE}", String.format("%.2f", result))
+            .replace("{BALANCE}", economy.format(result))
             .replace("{UNIT}", "金币"));
         return true;
     }

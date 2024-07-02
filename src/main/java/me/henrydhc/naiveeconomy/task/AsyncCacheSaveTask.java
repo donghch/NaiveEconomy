@@ -28,7 +28,6 @@ public class AsyncCacheSaveTask implements Consumer<ScheduledTask> {
                 return;
             }
         }
-        plugin.getLogger().info("Cache saved");
     }
 
 }

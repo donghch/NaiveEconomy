@@ -27,6 +27,7 @@ public class CmdPaymentHandler {
             amount = Double.parseDouble(args[2]);
             if (amount.isNaN() || amount <= 0) {
                 payer.sendMessage(LangLoader.getMessage("invalidAmount"));
+                return true;
             }
         } catch (NumberFormatException e) {
             payer.sendMessage(LangLoader.getMessage("invalidAmount"));

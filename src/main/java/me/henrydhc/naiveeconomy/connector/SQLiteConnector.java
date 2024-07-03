@@ -2,6 +2,7 @@ package me.henrydhc.naiveeconomy.connector;
 
 import me.henrydhc.naiveeconomy.CoreType;
 import me.henrydhc.naiveeconomy.NaiveEconomy;
+import me.henrydhc.naiveeconomy.account.EcoAccount;
 import me.henrydhc.naiveeconomy.account.NaiveAccount;
 import me.henrydhc.naiveeconomy.task.AsyncCacheSaveTask;
 import me.henrydhc.naiveeconomy.task.BukkitAsyncCacheSaveTask;
@@ -17,21 +18,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class SQLiteConnector implements Connector {
 
-    private ConcurrentMap<String, NaiveAccount> accounts;
+    private ConcurrentMap<String, EcoAccount> accounts;
     private final int cacheLife;
     private final Connection connection;
-    private final Lock lock;
     private final Plugin plugin;
 
     public SQLiteConnector(NaiveEconomy plugin) throws Exception{
         accounts = new ConcurrentHashMap<>();
         cacheLife = 120;
-        lock = new ReentrantLock();
         this.plugin = plugin;
 
         if (!checkPath()) {
@@ -56,34 +53,39 @@ public class SQLiteConnector implements Connector {
     }
 
     @Override
-    public double getBalance(String playerID) throws SQLException {
+    public EcoAccount getAccount(String playerID) throws SQLException {
         if (accounts.containsKey(playerID)) {
-            return accounts.get(playerID).getBalance();
+            return accounts.get(playerID);
         }
-        if (!hasRecord(playerID)) {
-            return 0;
+
+        // Try retrieve from the database
+        Statement statement = connection.createStatement();
+        String getBalanceSQL = String.format("SELECT balance FROM balance WHERE player_id='%s'",
+            playerID);
+        ResultSet resultSet = statement.executeQuery(getBalanceSQL);
+        if (resultSet.next()) {
+            return null;
+        } else {
+            EcoAccount account = new NaiveAccount(playerID, resultSet.getDouble("balance"));
+            accounts.put(playerID, account);
+            return account;
         }
-        double balance = getBalanceFromDb(playerID);
-        accounts.put(playerID, new NaiveAccount(playerID, balance));
-        return balance;
     }
 
     @Override
     public boolean setBalance(String playerID, double newValue) {
-        NaiveAccount account = accounts.get(playerID);
-        if (account == null) {
-            try {
-                if (hasRecord(playerID)) {
-                    getBalance(playerID);
-                    account = accounts.get(playerID);
-                } else {
-                    return false;
-                }
-            } catch (SQLException e) {
-                return false;
-            }
+        EcoAccount account;
+        try {
+            account = getAccount(playerID);
+        } catch (SQLException e) {
+            return false;
         }
-        account.setBalance(newValue);
+
+        if (account == null) {
+            accounts.put(playerID, new NaiveAccount(playerID, newValue));
+        } else {
+            account.setBalance(newValue);
+        }
         return true;
     }
 
@@ -92,9 +94,9 @@ public class SQLiteConnector implements Connector {
      */
     @Override
     public void saveCache() throws SQLException {
-        Map<String, NaiveAccount> copy = new HashMap<>(accounts);
+        Map<String, EcoAccount> copy = new HashMap<>(accounts);
         Statement statement = connection.createStatement();
-        for (Map.Entry<String, NaiveAccount> entry: copy.entrySet()) {
+        for (Map.Entry<String, EcoAccount> entry: copy.entrySet()) {
             String updateSQL = String.format("UPDATE balance SET balance=%.2f WHERE player_id='%s'", entry.getValue().getBalance(),
                 entry.getKey());
             String newAccountSQL = String.format("INSERT INTO balance VALUES('%s', %.2f)", entry.getKey(), entry.getValue().getBalance());
@@ -111,9 +113,9 @@ public class SQLiteConnector implements Connector {
      * Purge local cache
      */
     public void purgeCache() {
-        ConcurrentMap<String, NaiveAccount> result = new ConcurrentHashMap<>();
+        ConcurrentMap<String, EcoAccount> result = new ConcurrentHashMap<>();
         long currTime = new Date().getTime();
-        for (Map.Entry<String, NaiveAccount> account: accounts.entrySet()) {
+        for (Map.Entry<String, EcoAccount> account: accounts.entrySet()) {
             if (account.getValue().getLastModified() >= currTime - cacheLife * 1000) {
                 result.put(account.getKey(), account.getValue());
             }
@@ -151,20 +153,6 @@ public class SQLiteConnector implements Connector {
         statement.execute(initDbSQL);
     }
 
-    /**
-     * Get player balance from database
-     * @param playerID Player UUID. Must be valid
-     * @return Player balance
-     */
-    private double getBalanceFromDb(String playerID) throws SQLException {
-        Statement statement = connection.createStatement();
-        String getBalance = String.format("SELECT balance FROM balance WHERE player_id='%s'", playerID);
-        ResultSet resultSet = statement.executeQuery(getBalance);
-        if (resultSet.next()) {
-            return resultSet.getDouble("balance");
-        }
-        return -1;
-    }
 
     @Override
     public boolean hasRecord(String playerID) throws SQLException {
@@ -174,6 +162,11 @@ public class SQLiteConnector implements Connector {
         Statement statement = connection.createStatement();
         String hasAccountSQL = String.format("SELECT * FROM balance WHERE player_id='%s'", playerID);
         ResultSet resultSet = statement.executeQuery(hasAccountSQL);
-        return resultSet.next();
+        if (resultSet.next()) {
+            accounts.put(playerID, new NaiveAccount(playerID, resultSet.getDouble("balance")));
+            return true;
+        } else {
+            return false;
+        }
     }
 }

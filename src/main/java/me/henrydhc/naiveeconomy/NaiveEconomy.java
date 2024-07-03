@@ -1,6 +1,7 @@
 package me.henrydhc.naiveeconomy;
 
 import me.henrydhc.naiveeconomy.cmdhandler.CmdDispatcher;
+import me.henrydhc.naiveeconomy.config.ConfigLoader;
 import me.henrydhc.naiveeconomy.connector.Connector;
 import me.henrydhc.naiveeconomy.connector.SQLiteConnector;
 import me.henrydhc.naiveeconomy.economy.MainEconomy;
@@ -28,7 +29,13 @@ public class NaiveEconomy extends JavaPlugin {
 
         detectSeverCore();
 
-        if (!LangLoader.loadLang("zh-cn", this)) {
+        ConfigLoader.loadConfig(this);
+        String lang = ConfigLoader.getConfiguration().getString("lang");
+        if (lang == null) {
+            lang = "en";
+        }
+
+        if (!LangLoader.loadLang(lang, this)) {
             logger.severe("Failed to load language file. NaiveEconomy would not be able to work.");
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -66,7 +73,7 @@ public class NaiveEconomy extends JavaPlugin {
         logger.info("Permission Registered.");
 
         // Register commands
-        getCommand("economy").setExecutor(new CmdDispatcher(economy, connector));
+        getCommand("economy").setExecutor(new CmdDispatcher((MainEconomy) economy, connector));
         getCommand("economy").setTabCompleter(new TabCompletor());
 
         // Register Listeners

@@ -23,4 +23,10 @@ public interface EcoAccount {
      */
     public void setBalance(double newBalance);
 
+    /**
+     * Get last modified time
+     * @return Last modified time
+     */
+    public long getLastModified();
+
 }

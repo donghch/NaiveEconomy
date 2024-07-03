@@ -2,6 +2,7 @@ package me.henrydhc.naiveeconomy.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.util.List;
@@ -9,19 +10,27 @@ import java.util.List;
 public class ConfigLoader {
 
     private static List<String> configFields = List.of(
-        "currency-singular", "currency-plural"
+        "config-version", "lang"
     );
 
     private static FileConfiguration configuration;
 
-    public static boolean loadConfig() {
-        FileConfiguration config = new YamlConfiguration();
+    public static void loadConfig(Plugin plugin) {
 
         if (!checkPath()) {
-            return false;
+            plugin.saveDefaultConfig();
         }
-        return false;
 
+        configuration = plugin.getConfig();
+
+    }
+
+    /**
+     * Get config instance
+     * @return Config instance
+     */
+    public static FileConfiguration getConfiguration() {
+        return configuration;
     }
 
     /**
@@ -29,11 +38,11 @@ public class ConfigLoader {
      * @return `True` if those folders exists. Otherwise false.
      */
     private static boolean checkPath() {
-        File path = new File("plugins/NaiveEconomy");
-        if (path.isDirectory()) {
+        File path = new File("plugins/NaiveEconomy/config.yml");
+        if (path.isFile()) {
             return true;
         }
-        return path.mkdirs();
+        return false;
     }
 
 }

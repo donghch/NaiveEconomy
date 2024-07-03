@@ -1,15 +1,17 @@
 package me.henrydhc.naiveeconomy.connector;
 
+import me.henrydhc.naiveeconomy.account.EcoAccount;
+
 import java.sql.SQLException;
 
 public interface Connector {
 
     /**
-     * Get player balance from the database
+     * Get player account
      * @param playerID Player UUID
-     * @return Player balance
+     * @return Player account instance
      */
-    public double getBalance(String playerID) throws Exception;
+    public EcoAccount getAccount(String playerID) throws Exception;
 
     /**
      * Set a player's balance

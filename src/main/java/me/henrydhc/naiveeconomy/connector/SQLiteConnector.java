@@ -5,7 +5,6 @@ import me.henrydhc.naiveeconomy.NaiveEconomy;
 import me.henrydhc.naiveeconomy.task.AsyncCacheSaveTask;
 import me.henrydhc.naiveeconomy.task.BukkitAsyncCacheSaveTask;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.sql.*;
@@ -19,12 +18,10 @@ public class SQLiteConnector implements Connector {
     private final Map<String, Double> balanceCache;
     private final Map<String, Long> cacheTime;
     private final Connection connection;
-    private final NaiveEconomy plugin;
 
     public SQLiteConnector(NaiveEconomy plugin) throws Exception{
         balanceCache = new ConcurrentHashMap<>();
         cacheTime = new ConcurrentHashMap<>();
-        this.plugin = plugin;
 
         if (!checkPath()) {
             throw new Exception();
@@ -75,8 +72,7 @@ public class SQLiteConnector implements Connector {
             statement.execute(updateSQL);
             try {
                 statement.execute(newAccountSQL);
-            } catch (SQLException e) {
-                continue;
+            } catch (SQLException ignored) {
             }
         }
     }

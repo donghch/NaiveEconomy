@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public class NaiveEconomy extends JavaPlugin {
 
-    private Logger logger = getLogger();
+    private final Logger logger = getLogger();
     private Connector connector;
     private Economy economy;
     private CoreType coreType;

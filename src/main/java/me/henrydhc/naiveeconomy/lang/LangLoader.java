@@ -1,7 +1,6 @@
 package me.henrydhc.naiveeconomy.lang;
 
 import com.google.common.io.ByteStreams;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -17,18 +16,18 @@ import java.util.Map;
 
 public class LangLoader {
 
-    private static String[] LANG_FIELDS = {
+    private static final String[] LANG_FIELDS = {
         "title", "onRegister", "setBalance",
         "balance", "onSenderSend", "onReceiverGet",
         "noPerm", "invalidAmount", "noMoney",
         "playerNotExist"
     };
 
-    private static List<String> SUPPORTED_LANG = List.of(
+    private static final List<String> SUPPORTED_LANG = List.of(
         "zh-cn", "en"
     );
 
-    private static Map<String, String> messages = new HashMap<>();
+    private static final Map<String, String> messages = new HashMap<>();
 
     public static boolean loadLang(String lang, Plugin plugin) {
         if (!SUPPORTED_LANG.contains(lang)) {

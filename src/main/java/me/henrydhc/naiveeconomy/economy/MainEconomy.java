@@ -42,13 +42,8 @@ public class MainEconomy implements Economy {
 
     @Override
     public String format(double v) {
-        // 创建一个DecimalFormat对象，用于格式化数字
         NumberFormat formatter = new DecimalFormat("#,###.00");
-
-        // 格式化金额
-        String formattedAmount = formatter.format(v);
-
-        return formattedAmount;
+        return formatter.format(v);
     }
 
     @Override

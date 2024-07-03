@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class PermissionManager {
 
-    private static Map<String, PermissionDefault> nodes = Map.of(
+    private static final Map<String, PermissionDefault> nodes = Map.of(
         "pay", PermissionDefault.TRUE,
         "set", PermissionDefault.OP,
         "give", PermissionDefault.OP,

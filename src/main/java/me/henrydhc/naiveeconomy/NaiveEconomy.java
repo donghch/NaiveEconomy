@@ -1,7 +1,6 @@
 package me.henrydhc.naiveeconomy;
 
 import me.henrydhc.naiveeconomy.cmdhandler.CmdDispatcher;
-import me.henrydhc.naiveeconomy.cmdhandler.CmdPaymentHandler;
 import me.henrydhc.naiveeconomy.connector.Connector;
 import me.henrydhc.naiveeconomy.connector.SQLiteConnector;
 import me.henrydhc.naiveeconomy.economy.MainEconomy;
@@ -14,7 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.slf4j.LoggerFactory;
 
 import java.util.logging.Logger;
 
@@ -23,21 +21,12 @@ public class NaiveEconomy extends JavaPlugin {
     private Logger logger = getLogger();
     private Connector connector;
     private Economy economy;
-
-    @Override
-    public void onLoad() {
-    }
+    private CoreType coreType;
 
     @Override
     public void onEnable() {
 
-        try {
-            Class.forName("io.papermc.paper.chat.ChatRenderer");
-        } catch (Exception e) {
-            logger.severe("Current server is not Paper or Folia");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
+        detectSeverCore();
 
         if (!LangLoader.loadLang("zh-cn", this)) {
             logger.severe("Failed to load language file. NaiveEconomy would not be able to work.");
@@ -88,8 +77,14 @@ public class NaiveEconomy extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getAsyncScheduler().cancelTasks(this);
+        if (coreType != CoreType.SPIGOT) {
+            Bukkit.getAsyncScheduler().cancelTasks(this);
+        } else {
+            Bukkit.getScheduler().cancelTasks(this);
+        }
+
         try {
+            logger.info("Saving balance cache");
             connector.saveCache();
             connector.close();
         } catch (Exception e) {
@@ -97,6 +92,14 @@ public class NaiveEconomy extends JavaPlugin {
         }
         getServer().getServicesManager().unregisterAll(this);
         logger.info("Economy Service Unregistered");
+    }
+
+    /**
+     * Get server core type
+     * @return Server core type
+     */
+    public CoreType getCoreType() {
+        return coreType;
     }
 
     /**
@@ -111,6 +114,29 @@ public class NaiveEconomy extends JavaPlugin {
     private boolean registerService() {
         getServer().getServicesManager().register(Economy.class, economy, this, ServicePriority.Normal);
         return true;
+    }
+
+    private void detectSeverCore() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            coreType = CoreType.FOLIA;
+            logger.info("Current server core is Folia");
+            return;
+        } catch (Exception ignored) {
+
+        }
+
+        try {
+            Class.forName("io.papermc.paper.plugin.PermissionManager");
+            coreType = CoreType.PAPER;
+            logger.info("Current server core is Paper");
+            return;
+        } catch (Exception ignored) {
+
+        }
+
+        coreType = CoreType.SPIGOT;
+        logger.info("Current server core is Spigot");
     }
 
 }

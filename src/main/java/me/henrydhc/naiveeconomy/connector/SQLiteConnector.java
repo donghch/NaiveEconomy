@@ -1,6 +1,9 @@
 package me.henrydhc.naiveeconomy.connector;
 
+import me.henrydhc.naiveeconomy.CoreType;
+import me.henrydhc.naiveeconomy.NaiveEconomy;
 import me.henrydhc.naiveeconomy.task.AsyncCacheSaveTask;
+import me.henrydhc.naiveeconomy.task.BukkitAsyncCacheSaveTask;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -16,10 +19,9 @@ public class SQLiteConnector implements Connector {
     private final Map<String, Double> balanceCache;
     private final Map<String, Long> cacheTime;
     private final Connection connection;
-    private final Plugin plugin;
-    private final AsyncCacheSaveTask task;
+    private final NaiveEconomy plugin;
 
-    public SQLiteConnector(Plugin plugin) throws Exception{
+    public SQLiteConnector(NaiveEconomy plugin) throws Exception{
         balanceCache = new ConcurrentHashMap<>();
         cacheTime = new ConcurrentHashMap<>();
         this.plugin = plugin;
@@ -30,8 +32,15 @@ public class SQLiteConnector implements Connector {
 
         connection = DriverManager.getConnection("jdbc:sqlite:plugins/NaiveEconomy/data.db");
         initDatabase();
-        task = new AsyncCacheSaveTask(this, plugin);
-        Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task, 0, 1, TimeUnit.MINUTES);
+
+
+        if (plugin.getCoreType() != CoreType.SPIGOT) {
+            AsyncCacheSaveTask task = new AsyncCacheSaveTask(this, plugin);
+            Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task, 0, 1, TimeUnit.MINUTES);
+        } else {
+            BukkitAsyncCacheSaveTask task = new BukkitAsyncCacheSaveTask(this, plugin);
+            Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, task, 0, 20 * 60);
+        }
     }
 
     @Override

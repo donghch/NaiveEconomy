@@ -38,12 +38,10 @@ public class CmdAccountHandler {
             return true;
         }
 
-        try {
-            connector.setBalance(targetPlayer.getUniqueId().toString(), amount);
-        } catch (Exception e) {
-            sender.sendMessage("Failed to set balance.");
-            return false;
+        if(!connector.setBalance(targetPlayer.getUniqueId().toString(), amount)) {
+            sender.sendMessage("Failed to set money.");
         }
+
         sender.sendMessage(LangLoader.getMessage("setBalance").replace("{PLAYER}", targetPlayer.getName())
             .replace("{BALANCE}", economy.format(amount))
             .replace("{UNIT}", "金币"));

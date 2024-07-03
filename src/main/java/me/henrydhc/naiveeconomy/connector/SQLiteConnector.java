@@ -2,26 +2,37 @@ package me.henrydhc.naiveeconomy.connector;
 
 import me.henrydhc.naiveeconomy.CoreType;
 import me.henrydhc.naiveeconomy.NaiveEconomy;
+import me.henrydhc.naiveeconomy.account.NaiveAccount;
 import me.henrydhc.naiveeconomy.task.AsyncCacheSaveTask;
 import me.henrydhc.naiveeconomy.task.BukkitAsyncCacheSaveTask;
+import me.henrydhc.naiveeconomy.task.SyncCachePurgeTask;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.sql.*;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SQLiteConnector implements Connector {
 
-    private final Map<String, Double> balanceCache;
-    private final Map<String, Long> cacheTime;
+    private ConcurrentMap<String, NaiveAccount> accounts;
+    private final int cacheLife;
     private final Connection connection;
+    private final Lock lock;
+    private final Plugin plugin;
 
     public SQLiteConnector(NaiveEconomy plugin) throws Exception{
-        balanceCache = new ConcurrentHashMap<>();
-        cacheTime = new ConcurrentHashMap<>();
+        accounts = new ConcurrentHashMap<>();
+        cacheLife = 120;
+        lock = new ReentrantLock();
+        this.plugin = plugin;
 
         if (!checkPath()) {
             throw new Exception();
@@ -32,32 +43,48 @@ public class SQLiteConnector implements Connector {
 
 
         if (plugin.getCoreType() != CoreType.SPIGOT) {
-            AsyncCacheSaveTask task = new AsyncCacheSaveTask(this, plugin);
+            AsyncCacheSaveTask task = new AsyncCacheSaveTask(this);
+            SyncCachePurgeTask purgeTask = new SyncCachePurgeTask(this);
+            Bukkit.getScheduler().runTaskTimer(plugin, purgeTask, 60, 20 * 100);
             Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task, 0, 1, TimeUnit.MINUTES);
         } else {
-            BukkitAsyncCacheSaveTask task = new BukkitAsyncCacheSaveTask(this, plugin);
+            BukkitAsyncCacheSaveTask task = new BukkitAsyncCacheSaveTask(this);
+            SyncCachePurgeTask purgeTask = new SyncCachePurgeTask(this);
+            Bukkit.getScheduler().runTaskTimer(plugin, purgeTask, 60, 20 * 100);
             Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, task, 0, 20 * 60);
         }
     }
 
     @Override
     public double getBalance(String playerID) throws SQLException {
-        if (balanceCache.containsKey(playerID)) {
-            return balanceCache.get(playerID);
+        if (accounts.containsKey(playerID)) {
+            return accounts.get(playerID).getBalance();
         }
         if (!hasRecord(playerID)) {
             return 0;
         }
         double balance = getBalanceFromDb(playerID);
-        balanceCache.put(playerID, balance);
-        cacheTime.put(playerID, new Date().getTime());
+        accounts.put(playerID, new NaiveAccount(playerID, balance));
         return balance;
     }
 
     @Override
-    public void setBalance(String playerID, double newValue) {
-        balanceCache.put(playerID, newValue);
-        cacheTime.put(playerID, new Date().getTime());
+    public boolean setBalance(String playerID, double newValue) {
+        NaiveAccount account = accounts.get(playerID);
+        if (account == null) {
+            try {
+                if (hasRecord(playerID)) {
+                    getBalance(playerID);
+                    account = accounts.get(playerID);
+                } else {
+                    return false;
+                }
+            } catch (SQLException e) {
+                return false;
+            }
+        }
+        account.setBalance(newValue);
+        return true;
     }
 
     /**
@@ -65,18 +92,35 @@ public class SQLiteConnector implements Connector {
      */
     @Override
     public void saveCache() throws SQLException {
+        Map<String, NaiveAccount> copy = new HashMap<>(accounts);
         Statement statement = connection.createStatement();
-        for (Map.Entry<String, Double> entry: balanceCache.entrySet()) {
-            String updateSQL = String.format("UPDATE balance SET balance=%.2f WHERE player_id='%s'", entry.getValue(), entry.getKey());
-            String newAccountSQL = String.format("INSERT INTO balance VALUES('%s', %.2f)", entry.getKey(), entry.getValue());
+        for (Map.Entry<String, NaiveAccount> entry: copy.entrySet()) {
+            String updateSQL = String.format("UPDATE balance SET balance=%.2f WHERE player_id='%s'", entry.getValue().getBalance(),
+                entry.getKey());
+            String newAccountSQL = String.format("INSERT INTO balance VALUES('%s', %.2f)", entry.getKey(), entry.getValue().getBalance());
             statement.execute(updateSQL);
             try {
                 statement.execute(newAccountSQL);
             } catch (SQLException ignored) {
             }
         }
+        plugin.getLogger().info(String.format("Saved %d cache records", copy.size()));
     }
 
+    /**
+     * Purge local cache
+     */
+    public void purgeCache() {
+        ConcurrentMap<String, NaiveAccount> result = new ConcurrentHashMap<>();
+        long currTime = new Date().getTime();
+        for (Map.Entry<String, NaiveAccount> account: accounts.entrySet()) {
+            if (account.getValue().getLastModified() >= currTime - cacheLife * 1000) {
+                result.put(account.getKey(), account.getValue());
+            }
+        }
+        plugin.getLogger().info(String.format("Purged %d cache records.", accounts.size() - result.size()));
+        this.accounts = result;
+    }
 
     @Override
     public void close() throws SQLException {
@@ -124,7 +168,7 @@ public class SQLiteConnector implements Connector {
 
     @Override
     public boolean hasRecord(String playerID) throws SQLException {
-        if (balanceCache.containsKey(playerID)) {
+        if (accounts.containsKey(playerID)) {
             return true;
         }
         Statement statement = connection.createStatement();

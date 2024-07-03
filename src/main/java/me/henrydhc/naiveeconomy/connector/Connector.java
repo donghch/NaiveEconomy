@@ -16,7 +16,7 @@ public interface Connector {
      * @param playerID Player UUID
      * @param newValue Player's new balance
      */
-    public void setBalance(String playerID, double newValue);
+    public boolean setBalance(String playerID, double newValue);
 
     /**
      * Check if this player has record in the database

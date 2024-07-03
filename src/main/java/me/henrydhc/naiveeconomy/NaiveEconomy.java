@@ -53,8 +53,6 @@ public class NaiveEconomy extends JavaPlugin {
         logger.info("Database connected.");
 
         economy = new MainEconomy(connector, this);
-        logger.info(economy.toString());
-
 
         if (!registerService()) {
             logger.severe("Can't register economy service. NaiveEconomy would not be able to work.");
@@ -79,6 +77,7 @@ public class NaiveEconomy extends JavaPlugin {
     public void onDisable() {
         if (coreType != CoreType.SPIGOT) {
             Bukkit.getAsyncScheduler().cancelTasks(this);
+            Bukkit.getScheduler().cancelTasks(this);
         } else {
             Bukkit.getScheduler().cancelTasks(this);
         }

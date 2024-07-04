@@ -10,10 +10,12 @@ import java.util.Map;
 public class PermissionManager {
 
     private static final Map<String, PermissionDefault> nodes = Map.of(
+        "balance", PermissionDefault.TRUE,
         "pay", PermissionDefault.TRUE,
         "set", PermissionDefault.OP,
         "give", PermissionDefault.OP,
-        "take", PermissionDefault.OP
+        "take", PermissionDefault.OP,
+        "balance.other", PermissionDefault.TRUE
     );
 
     public static void registerPermissions() {

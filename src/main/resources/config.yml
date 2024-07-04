@@ -1,2 +1,7 @@
 # Config version
+config-version: 1
+
+# language
+lang: "en"
+
 

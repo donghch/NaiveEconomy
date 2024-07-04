@@ -1,8 +1,8 @@
 package me.henrydhc.naiveeconomy.cmdhandler;
 
 import me.henrydhc.naiveeconomy.connector.Connector;
+import me.henrydhc.naiveeconomy.economy.MainEconomy;
 import me.henrydhc.naiveeconomy.lang.LangLoader;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,7 +15,7 @@ public class CmdDispatcher implements CommandExecutor {
     private final CmdAccountHandler accountHandler;
 
 
-    public CmdDispatcher(Economy economy, Connector connector) {
+    public CmdDispatcher(MainEconomy economy, Connector connector) {
         this.paymentHandler = new CmdPaymentHandler(economy);
         this.accountHandler = new CmdAccountHandler(connector, economy);
     }
@@ -58,11 +58,11 @@ public class CmdDispatcher implements CommandExecutor {
                 }
                 return accountHandler.takeMoney(commandSender, strings);
             case "balance":
-                if (!(commandSender instanceof Player)) {
+                if (!(commandSender instanceof Player) && strings.length < 2) {
                     commandSender.sendMessage("Only player can use this command!");
                     return true;
                 }
-                return accountHandler.getBalance((Player) commandSender);
+                return accountHandler.getBalance(commandSender, strings);
             case "info":
                 commandSender.sendMessage(LangLoader.getPluginInfo());
                 return true;

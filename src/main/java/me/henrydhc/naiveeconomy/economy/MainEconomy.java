@@ -59,13 +59,14 @@ public class MainEconomy implements Economy {
     @Override
     public boolean hasAccount(String s) {
         OfflinePlayer player = plugin.getServer().getOfflinePlayer(s);
-        try {
-            return connector.hasRecord(player.getUniqueId().toString());
-        } catch (Exception e) {
-            return false;
-        }
+        return hasAccount(player);
     }
 
+    /**
+     * Check if the player has account in the cache or database
+     * @param offlinePlayer Player instance
+     * @return True or False
+     */
     @Override
     public boolean hasAccount(OfflinePlayer offlinePlayer) {
         String playerID = offlinePlayer.getUniqueId().toString();
@@ -92,14 +93,20 @@ public class MainEconomy implements Economy {
         return getBalance(player);
     }
 
+    /**
+     * Get player balance
+     * @param offlinePlayer Player instance
+     * @return Player balance. If the player does not exist it would return 0.
+     */
     @Override
     public double getBalance(OfflinePlayer offlinePlayer) {
         String playerID = offlinePlayer.getUniqueId().toString();
         try {
-            if (hasAccount(playerID))
-                return connector.getBalance(playerID);
-            connector.setBalance(playerID, 0);
-            return 0;
+            if (hasAccount(offlinePlayer)) {
+                return connector.getAccount(playerID).getBalance();
+            } else {
+                return 0;
+            }
         } catch (Exception e) {
             return 0;
         }
@@ -129,7 +136,7 @@ public class MainEconomy implements Economy {
             connector.setBalance(playerID, 0);
         } else {
             try {
-                currBalance = connector.getBalance(playerID);
+                currBalance = getBalance(offlinePlayer);
             } catch (Exception e) {
                 return false;
             }
@@ -155,19 +162,17 @@ public class MainEconomy implements Economy {
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, double v) {
-        String playerID = offlinePlayer.getUniqueId().toString();
-        double currentBalance;
-        try {
-            currentBalance = connector.getBalance(playerID);
-        } catch (Exception e) {
-            return new EconomyResponse(0, -1, EconomyResponse.ResponseType.FAILURE, "Failed to connect to database");
+
+        if (!hasAccount(offlinePlayer)) {
+            return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, null);
         }
 
+        double currentBalance = getBalance(offlinePlayer);
         if (currentBalance < v) {
             return new EconomyResponse(0, currentBalance, EconomyResponse.ResponseType.FAILURE, null);
         }
 
-        connector.setBalance(playerID, currentBalance - v);
+        connector.setBalance(offlinePlayer.getUniqueId().toString(), currentBalance - v);
         return new EconomyResponse(v, currentBalance - v, EconomyResponse.ResponseType.SUCCESS, null);
     }
 
@@ -189,13 +194,11 @@ public class MainEconomy implements Economy {
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, double v) {
         String playerID = offlinePlayer.getUniqueId().toString();
-        double currentBalance;
-        try {
-            currentBalance = connector.getBalance(playerID);
-        } catch (Exception e) {
-            return new EconomyResponse(0, -1, EconomyResponse.ResponseType.FAILURE, "Failed to connect to database");
+        if (!hasAccount(offlinePlayer)) {
+            return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, null);
         }
 
+        double currentBalance = getBalance(offlinePlayer);
         connector.setBalance(playerID, currentBalance + v);
         return new EconomyResponse(v, currentBalance + v, EconomyResponse.ResponseType.SUCCESS, null);
     }

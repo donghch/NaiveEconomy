@@ -18,4 +18,4 @@ playerNotExist: "&cPlayer does not exist"
 # Admin messages
 # Placeholders {PLAYER}, {BALANCE}
 # Set balance
-setBalance: "&aPlayer &e{PLAYER}&a has balance &c{BALANCE} &6{UNIT}& now."
+setBalance: "&aPlayer &e{PLAYER}&a has balance &c{BALANCE} &6{UNIT} &anow."

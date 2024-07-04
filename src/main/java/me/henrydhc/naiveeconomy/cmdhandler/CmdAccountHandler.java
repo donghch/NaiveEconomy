@@ -23,6 +23,11 @@ public class CmdAccountHandler {
 
         OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(args[1]);
 
+        if (!economy.hasAccount(targetPlayer)) {
+            sender.sendMessage(LangLoader.getMessage("playerNotExist"));
+            return true;
+        }
+
         Double amount;
         try {
             amount = Double.parseDouble(args[2]);
@@ -48,6 +53,10 @@ public class CmdAccountHandler {
     public boolean giveMoney(CommandSender sender, String[] args) {
 
         OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(args[1]);
+        if (!economy.hasAccount(targetPlayer)) {
+            sender.sendMessage(LangLoader.getMessage("playerNotExist"));
+            return true;
+        }
 
         Double amount;
         try {
@@ -75,6 +84,10 @@ public class CmdAccountHandler {
     public boolean takeMoney(CommandSender sender, String[] args) {
 
         OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(args[1]);
+        if (!economy.hasAccount(targetPlayer)) {
+            sender.sendMessage(LangLoader.getMessage("playerNotExist"));
+            return true;
+        }
 
         Double amount;
         try {
@@ -99,15 +112,27 @@ public class CmdAccountHandler {
         return true;
     }
 
-    public boolean getBalance(Player player) {
+    public boolean getBalance(CommandSender sender, String[] args) {
         double result;
-        try {
-            result = economy.getBalance(player);
-        } catch (Exception e) {
-            player.sendMessage("Failed to get your balance");
+        OfflinePlayer targetPlayer;
+        if (args.length == 2) {
+            targetPlayer = Bukkit.getOfflinePlayer(args[1]);
+        } else {
+            targetPlayer = (Player)sender;
+        }
+
+        if (!economy.hasAccount(targetPlayer)) {
+            sender.sendMessage(LangLoader.getMessage("playerNotExist"));
             return true;
         }
-        player.sendMessage(LangLoader.getMessage("balance").replace("{PLAYER}", player.getName())
+
+        try {
+            result = economy.getBalance(targetPlayer);
+        } catch (Exception e) {
+            sender.sendMessage("Failed to get your balance");
+            return true;
+        }
+        sender.sendMessage(LangLoader.getMessage("balance").replace("{PLAYER}", targetPlayer.getName())
             .replace("{BALANCE}", economy.format(result))
             .replace("{UNIT}", "金币"));
         return true;

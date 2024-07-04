@@ -58,11 +58,11 @@ public class CmdDispatcher implements CommandExecutor {
                 }
                 return accountHandler.takeMoney(commandSender, strings);
             case "balance":
-                if (!(commandSender instanceof Player)) {
+                if (!(commandSender instanceof Player) && strings.length < 2) {
                     commandSender.sendMessage("Only player can use this command!");
                     return true;
                 }
-                return accountHandler.getBalance((Player) commandSender);
+                return accountHandler.getBalance(commandSender, strings);
             case "info":
                 commandSender.sendMessage(LangLoader.getPluginInfo());
                 return true;

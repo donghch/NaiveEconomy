@@ -20,7 +20,7 @@ public class LangLoader {
         "title", "onRegister", "setBalance",
         "balance", "onSenderSend", "onReceiverGet",
         "noPerm", "invalidAmount", "noMoney",
-        "playerNotExist"
+        "playerNotExist", "onPluginWithdraw", "onPluginDeposit"
     };
 
     private static final List<String> SUPPORTED_LANG = List.of(

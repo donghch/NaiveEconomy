@@ -12,6 +12,10 @@ invalidAmount: "&c输入金额无效"
 noMoney: "&c余额不足"
 playerNotExist: "&c玩家不存在"
 
+# 当其它插件进行经济操作是会向相关玩家展示以下信息
+onPluginWithdraw: "&a你的账户支出了 &c{AMOUNT} &6{UNIT}"
+onPluginDeposit: "&a你的账户入账了 &c{AMOUNT} &6{UNIT}"
+
 # 管理员相关信息
 # 设置玩家余额
 setBalance: "&a玩家 &e{PLAYER}&a 的余额已被更改为 &c{BALANCE} &6{UNIT}&e."

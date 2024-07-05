@@ -13,6 +13,9 @@ invalidAmount: "&cInvalid amount"
 noMoney: "&cYou don't have enough money"
 playerNotExist: "&cPlayer does not exist"
 
+# This will be sent when a plugin withdraw/deposit money into player's account
+onPluginWithdraw: "&aYou have an outbound transaction of &c{AMOUNT} &6{UNIT}"
+onPluginDeposit: "&aYou have an inbound transaction of &c{AMOUNT} &6{UNIT}"
 
 
 # Admin messages

@@ -1,9 +1,11 @@
 package me.henrydhc.naiveeconomy.economy;
 
 import me.henrydhc.naiveeconomy.connector.Connector;
+import me.henrydhc.naiveeconomy.lang.LangLoader;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.text.DecimalFormat;
@@ -173,6 +175,11 @@ public class MainEconomy implements Economy {
         }
 
         connector.setBalance(offlinePlayer.getUniqueId().toString(), currentBalance - v);
+        if (offlinePlayer.isOnline() && offlinePlayer instanceof Player) {
+            Player player = (Player) offlinePlayer;
+            player.sendMessage(LangLoader.getMessage("onPluginWithdraw")
+                .replace("{AMOUNT}", format(v)).replace("{UNIT}", currencyNamePlural()));
+        }
         return new EconomyResponse(v, currentBalance - v, EconomyResponse.ResponseType.SUCCESS, null);
     }
 
@@ -200,6 +207,12 @@ public class MainEconomy implements Economy {
 
         double currentBalance = getBalance(offlinePlayer);
         connector.setBalance(playerID, currentBalance + v);
+        if (offlinePlayer.isOnline() && offlinePlayer instanceof Player) {
+            Player player = (Player) offlinePlayer;
+            player.sendMessage(LangLoader.getMessage("onPluginDeposit")
+                .replace("{AMOUNT}", format(v)).replace("{UNIT}", currencyNamePlural()));
+        }
+
         return new EconomyResponse(v, currentBalance + v, EconomyResponse.ResponseType.SUCCESS, null);
     }
 

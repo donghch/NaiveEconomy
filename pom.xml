@@ -19,7 +19,7 @@
         <profile>
             <id>development</id>
             <properties>
-                <plugin.version>dev-${env.BUILD_NUMBER}</plugin.version>
+                <plugin.version>dev-build${env.BUILD_NUMBER}</plugin.version>
             </properties>
         </profile>
         <profile>

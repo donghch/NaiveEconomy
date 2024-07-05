@@ -6,7 +6,7 @@
 
     <groupId>me.henrydhc.naiveeconomy</groupId>
     <artifactId>NaiveEconomy</artifactId>
-    <version>build-${env.BUILD_NUMBER}</version>
+    <version>dev-latest</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

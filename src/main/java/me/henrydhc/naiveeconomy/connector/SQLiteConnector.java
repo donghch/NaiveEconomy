@@ -4,10 +4,12 @@ import me.henrydhc.naiveeconomy.CoreType;
 import me.henrydhc.naiveeconomy.NaiveEconomy;
 import me.henrydhc.naiveeconomy.account.EcoAccount;
 import me.henrydhc.naiveeconomy.account.NaiveAccount;
+import me.henrydhc.naiveeconomy.config.ConfigLoader;
 import me.henrydhc.naiveeconomy.task.AsyncCacheSaveTask;
 import me.henrydhc.naiveeconomy.task.BukkitAsyncCacheSaveTask;
 import me.henrydhc.naiveeconomy.task.SyncCachePurgeTask;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -106,7 +108,10 @@ public class SQLiteConnector implements Connector {
             } catch (SQLException ignored) {
             }
         }
-        plugin.getLogger().info(String.format("Saved %d cache records", copy.size()));
+
+        FileConfiguration configuration = ConfigLoader.getConfiguration();
+        if (configuration.getBoolean("enable-cache-messages"))
+            plugin.getLogger().info(String.format("Saved %d cache records", copy.size()));
     }
 
     /**
@@ -120,7 +125,10 @@ public class SQLiteConnector implements Connector {
                 result.put(account.getKey(), account.getValue());
             }
         }
-        plugin.getLogger().info(String.format("Purged %d cache records.", accounts.size() - result.size()));
+
+        FileConfiguration configuration = ConfigLoader.getConfiguration();
+        if (configuration.getBoolean("enable-cache-messages"))
+            plugin.getLogger().info(String.format("Purged %d cache records.", accounts.size() - result.size()));
         this.accounts = result;
     }
 

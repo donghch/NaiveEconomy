@@ -10,7 +10,8 @@ import java.util.List;
 public class ConfigLoader {
 
     private static List<String> configFields = List.of(
-        "config-version", "lang"
+        "config-version", "lang", "enable-transaction-notice",
+        "enable-cache-messages"
     );
 
     private static FileConfiguration configuration;

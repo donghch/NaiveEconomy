@@ -1,10 +1,12 @@
 package me.henrydhc.naiveeconomy.economy;
 
+import me.henrydhc.naiveeconomy.config.ConfigLoader;
 import me.henrydhc.naiveeconomy.connector.Connector;
 import me.henrydhc.naiveeconomy.lang.LangLoader;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -175,7 +177,10 @@ public class MainEconomy implements Economy {
         }
 
         connector.setBalance(offlinePlayer.getUniqueId().toString(), currentBalance - v);
-        if (offlinePlayer.isOnline() && offlinePlayer instanceof Player) {
+
+        FileConfiguration configuration = ConfigLoader.getConfiguration();
+        if (offlinePlayer.isOnline() && offlinePlayer instanceof Player &&
+            configuration.getBoolean("enable-transaction-notice")) {
             Player player = (Player) offlinePlayer;
             player.sendMessage(LangLoader.getMessage("onPluginWithdraw")
                 .replace("{AMOUNT}", format(v)).replace("{UNIT}", currencyNamePlural()));
@@ -207,7 +212,10 @@ public class MainEconomy implements Economy {
 
         double currentBalance = getBalance(offlinePlayer);
         connector.setBalance(playerID, currentBalance + v);
-        if (offlinePlayer.isOnline() && offlinePlayer instanceof Player) {
+
+        FileConfiguration configuration = ConfigLoader.getConfiguration();
+        if (offlinePlayer.isOnline() && offlinePlayer instanceof Player &&
+            configuration.getBoolean("enable-transaction-notice")) {
             Player player = (Player) offlinePlayer;
             player.sendMessage(LangLoader.getMessage("onPluginDeposit")
                 .replace("{AMOUNT}", format(v)).replace("{UNIT}", currencyNamePlural()));

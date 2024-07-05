@@ -2,7 +2,7 @@ name: NaiveEconomy
 author: dieshenke
 main: me.henrydhc.naiveeconomy.NaiveEconomy
 api-version: 1.19
-version: 1.0.0
+version: ${plugin.version}
 description: A simple economy plugin with Paper & Folia aupport
 folia-supported: true
 commands:

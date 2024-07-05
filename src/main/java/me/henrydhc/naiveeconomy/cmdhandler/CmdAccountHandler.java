@@ -23,6 +23,7 @@ public class CmdAccountHandler {
 
         OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(args[1]);
 
+
         // Check if that account exists
         if (!economy.hasAccount(targetPlayer)) {
             sender.sendMessage(LangLoader.getMessage("playerNotExist"));
@@ -42,7 +43,9 @@ public class CmdAccountHandler {
             return true;
         }
 
+
         // Try set balance
+
         if(!connector.setBalance(targetPlayer.getUniqueId().toString(), amount)) {
             sender.sendMessage("Failed to set money.");
         }
@@ -55,7 +58,9 @@ public class CmdAccountHandler {
 
     public boolean giveMoney(CommandSender sender, String[] args) {
 
+
         // Check if that player has account
+
         OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(args[1]);
         if (!economy.hasAccount(targetPlayer)) {
             sender.sendMessage(LangLoader.getMessage("playerNotExist"));
@@ -89,7 +94,9 @@ public class CmdAccountHandler {
 
     public boolean takeMoney(CommandSender sender, String[] args) {
 
+
         // Check if player has account
+
         OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(args[1]);
         if (!economy.hasAccount(targetPlayer)) {
             sender.sendMessage(LangLoader.getMessage("playerNotExist"));
@@ -125,12 +132,15 @@ public class CmdAccountHandler {
         double result;
         OfflinePlayer targetPlayer;
 
+
         // Check this player or that player?
+
         if (args.length == 2) {
             targetPlayer = Bukkit.getOfflinePlayer(args[1]);
         } else {
             targetPlayer = (Player)sender;
         }
+
 
         // Check if player has account
         if (!economy.hasAccount(targetPlayer)) {

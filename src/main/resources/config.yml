@@ -4,4 +4,6 @@ config-version: 1
 # language
 lang: "en"
 
-
+# Enable this to let players get messages when other plugins conduct transactions
+# on their account
+enable-transaction-notice: true

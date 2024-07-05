@@ -18,10 +18,12 @@ public class MainEconomy implements Economy {
 
     private final Connector connector;
     private final Plugin plugin;
+    private final FileConfiguration config;
 
-    public MainEconomy(Connector connector, Plugin plugin) {
+    public MainEconomy(Connector connector, Plugin plugin, FileConfiguration config) {
         this.connector = connector;
         this.plugin = plugin;
+        this.config = config;
     }
 
     @Override
@@ -52,12 +54,12 @@ public class MainEconomy implements Economy {
 
     @Override
     public String currencyNamePlural() {
-        return "金币";
+        return config.getString("currency-plural");
     }
 
     @Override
     public String currencyNameSingular() {
-        return "金币";
+        return config.getString("currency-singular");
     }
 
     @Override
@@ -183,7 +185,7 @@ public class MainEconomy implements Economy {
             configuration.getBoolean("enable-transaction-notice")) {
             Player player = (Player) offlinePlayer;
             player.sendMessage(LangLoader.getMessage("onPluginWithdraw")
-                .replace("{AMOUNT}", format(v)).replace("{UNIT}", currencyNamePlural()));
+                .replace("{AMOUNT}", format(v)).replace("{UNIT}", v > 1 ? currencyNamePlural():currencyNameSingular()));
         }
         return new EconomyResponse(v, currentBalance - v, EconomyResponse.ResponseType.SUCCESS, null);
     }
@@ -218,7 +220,7 @@ public class MainEconomy implements Economy {
             configuration.getBoolean("enable-transaction-notice")) {
             Player player = (Player) offlinePlayer;
             player.sendMessage(LangLoader.getMessage("onPluginDeposit")
-                .replace("{AMOUNT}", format(v)).replace("{UNIT}", currencyNamePlural()));
+                .replace("{AMOUNT}", format(v)).replace("{UNIT}", v > 1 ? currencyNamePlural():currencyNameSingular()));
         }
 
         return new EconomyResponse(v, currentBalance + v, EconomyResponse.ResponseType.SUCCESS, null);

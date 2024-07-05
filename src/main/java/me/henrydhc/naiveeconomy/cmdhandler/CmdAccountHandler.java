@@ -1,5 +1,6 @@
 package me.henrydhc.naiveeconomy.cmdhandler;
 
+import me.henrydhc.naiveeconomy.config.ConfigLoader;
 import me.henrydhc.naiveeconomy.connector.Connector;
 import me.henrydhc.naiveeconomy.economy.MainEconomy;
 import me.henrydhc.naiveeconomy.lang.LangLoader;
@@ -7,6 +8,7 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 public class CmdAccountHandler {
@@ -50,9 +52,12 @@ public class CmdAccountHandler {
             sender.sendMessage("Failed to set money.");
         }
 
-        sender.sendMessage(LangLoader.getMessage("setBalance").replace("{PLAYER}", targetPlayer.getName())
+        FileConfiguration config = ConfigLoader.getConfiguration();
+        String msg = LangLoader.getMessage("setBalance").replace("{PLAYER}", targetPlayer.getName())
             .replace("{BALANCE}", economy.format(amount))
-            .replace("{UNIT}", "金币"));
+            .replace("{UNIT}", amount > 1 ? config.getString("currency-plural"):config.getString("currency-singular"));
+
+        sender.sendMessage(msg);
         return true;
     }
 
@@ -86,9 +91,13 @@ public class CmdAccountHandler {
             sender.sendMessage(LangLoader.getMessage("noMoney"));
             return true;
         }
-        sender.sendMessage(LangLoader.getMessage("setBalance").replace("{PLAYER}", targetPlayer.getName())
+
+        FileConfiguration config = ConfigLoader.getConfiguration();
+        String msg = LangLoader.getMessage("setBalance").replace("{PLAYER}", targetPlayer.getName())
             .replace("{BALANCE}", economy.format(response.balance))
-            .replace("{UNIT}", "金币"));
+            .replace("{UNIT}", response.balance > 1 ? config.getString("currency-plural"):config.getString("currency-singular"));
+
+        sender.sendMessage(msg);
         return true;
     }
 
@@ -122,9 +131,12 @@ public class CmdAccountHandler {
             sender.sendMessage(LangLoader.getMessage("noMoney"));
             return true;
         }
-        sender.sendMessage(LangLoader.getMessage("setBalance").replace("{PLAYER}", targetPlayer.getName())
+        FileConfiguration config = ConfigLoader.getConfiguration();
+        String msg = LangLoader.getMessage("setBalance").replace("{PLAYER}", targetPlayer.getName())
             .replace("{BALANCE}", economy.format(response.balance))
-            .replace("{UNIT}", "金币"));
+            .replace("{UNIT}", response.balance > 1 ? config.getString("currency-plural"):config.getString("currency-singular"));
+
+        sender.sendMessage(msg);
         return true;
     }
 
@@ -154,9 +166,13 @@ public class CmdAccountHandler {
             sender.sendMessage("Failed to get your balance");
             return true;
         }
-        sender.sendMessage(LangLoader.getMessage("balance").replace("{PLAYER}", targetPlayer.getName())
+
+        FileConfiguration config = ConfigLoader.getConfiguration();
+        String msg = LangLoader.getMessage("balance").replace("{PLAYER}", targetPlayer.getName())
             .replace("{BALANCE}", economy.format(result))
-            .replace("{UNIT}", "金币"));
+            .replace("{UNIT}", result > 1 ? config.getString("currency-plural"):config.getString("currency-singular"));
+
+        sender.sendMessage(msg);
         return true;
     }
 

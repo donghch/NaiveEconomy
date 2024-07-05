@@ -9,3 +9,7 @@ lang: "en"
 enable-transaction-notice: true
 # Enable cache messages
 enable-cache-messages: false
+
+# Currency Unit
+currency-singular: "dollar"
+currency-plural: "dollars"

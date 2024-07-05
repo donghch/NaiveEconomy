@@ -11,6 +11,7 @@ import me.henrydhc.naiveeconomy.permission.PermissionManager;
 import me.henrydhc.naiveeconomy.tabcomplete.TabCompletor;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,6 +24,7 @@ public class NaiveEconomy extends JavaPlugin {
     private Connector connector;
     private Economy economy;
     private CoreType coreType;
+    private FileConfiguration configuration;
 
     @Override
     public void onEnable() {
@@ -30,6 +32,7 @@ public class NaiveEconomy extends JavaPlugin {
         detectSeverCore();
 
         ConfigLoader.loadConfig(this);
+        configuration = ConfigLoader.getConfiguration();
         String lang = ConfigLoader.getConfiguration().getString("lang");
         if (lang == null) {
             lang = "en";
@@ -59,7 +62,7 @@ public class NaiveEconomy extends JavaPlugin {
         }
         logger.info("Database connected.");
 
-        economy = new MainEconomy(connector, this);
+        economy = new MainEconomy(connector, this, configuration);
 
         if (!registerService()) {
             logger.severe("Can't register economy service. NaiveEconomy would not be able to work.");

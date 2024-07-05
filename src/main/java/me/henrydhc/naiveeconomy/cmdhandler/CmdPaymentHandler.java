@@ -1,9 +1,11 @@
 package me.henrydhc.naiveeconomy.cmdhandler;
 
+import me.henrydhc.naiveeconomy.config.ConfigLoader;
 import me.henrydhc.naiveeconomy.lang.LangLoader;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 public class CmdPaymentHandler {
@@ -46,13 +48,15 @@ public class CmdPaymentHandler {
         }
 
         economy.depositPlayer(receiver, amount);
+
+        FileConfiguration config = ConfigLoader.getConfiguration();
         payer.sendMessage(LangLoader.getMessage("onSenderSend").replace("{PLAYER}", receiver.getName())
             .replace("{AMOUNT}", economy.format(amount))
-            .replace("{UNIT}", "金币"));
+            .replace("{UNIT}", amount > 1 ? config.getString("currency-plural"):config.getString("currency-singular")));
         if (receiver.isOnline()) {
             payer.sendMessage(LangLoader.getMessage("onReceiverGet").replace("{PLAYER}", payer.getName())
                 .replace("{AMOUNT}", economy.format(amount))
-                .replace("{UNIT}", "金币"));
+                .replace("{UNIT}", amount > 1 ? config.getString("currency-plural"):config.getString("currency-singular")));
         }
         return true;
 

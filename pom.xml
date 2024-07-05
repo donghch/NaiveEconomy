@@ -6,7 +6,7 @@
 
     <groupId>me.henrydhc.naiveeconomy</groupId>
     <artifactId>NaiveEconomy</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>dev-latest</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -15,7 +15,23 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>development</id>
+            <properties>
+                <plugin.version>dev-build${env.BUILD_NUMBER}</plugin.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>production</id>
+            <properties>
+                <plugin.version>1.0.0-beta</plugin.version>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
+        <finalName>NaiveEconomy-dev-build${env.BUILD_NUMBER}</finalName>
         <plugins>
             <!-- 此插件必须放在父 POM 中  -->
             <plugin>

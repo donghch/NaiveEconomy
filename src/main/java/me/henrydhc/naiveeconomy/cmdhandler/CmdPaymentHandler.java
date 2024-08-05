@@ -54,7 +54,7 @@ public class CmdPaymentHandler {
             .replace("{AMOUNT}", economy.format(amount))
             .replace("{UNIT}", amount > 1 ? config.getString("currency-plural"):config.getString("currency-singular")));
         if (receiver.isOnline()) {
-            payer.sendMessage(LangLoader.getMessage("onReceiverGet").replace("{PLAYER}", payer.getName())
+            receiver.sendMessage(LangLoader.getMessage("onReceiverGet").replace("{PLAYER}", payer.getName())
                 .replace("{AMOUNT}", economy.format(amount))
                 .replace("{UNIT}", amount > 1 ? config.getString("currency-plural"):config.getString("currency-singular")));
         }

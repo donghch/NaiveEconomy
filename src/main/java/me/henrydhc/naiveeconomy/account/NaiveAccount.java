@@ -1,38 +1,42 @@
 package me.henrydhc.naiveeconomy.account;
 
-import java.util.Date;
+import java.util.UUID;
 
 public class NaiveAccount implements EcoAccount{
 
-    private final String playerID;
+    private UUID accountID;
+    private UUID playerID;
     private double balance;
-    private long lastModified;
 
-    public NaiveAccount(String playerID, double balance) {
+    public NaiveAccount(UUID playerID) {
+        accountID = UUID.randomUUID();
         this.playerID = playerID;
-        this.balance = balance;
-        this.lastModified = new Date().getTime();
+        balance = 0;
     }
 
-    public String getOwnerUUID() {
+    public NaiveAccount(UUID playerID, UUID accountID, double balance) {
+        this.accountID = accountID;
+        this.playerID = playerID;
+        this.balance = balance;
+    }
+
+    @Override
+    public UUID getAccountUUID() {
+        return accountID;
+    }
+
+    @Override
+    public UUID getOwnerUUID() {
         return playerID;
     }
 
+    @Override
     public double getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
-        this.balance = balance;
-        this.lastModified = new Date().getTime();
+    @Override
+    public void setBalance(double newBalance) {
+        this.balance = newBalance;
     }
-
-    /**
-     * Get last modified time
-     * @return Last modified time
-     */
-    public long getLastModified() {
-        return this.lastModified;
-    }
-
 }

@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.UUID;
 
 public class MainEconomy implements Economy {
 
@@ -75,7 +76,7 @@ public class MainEconomy implements Economy {
      */
     @Override
     public boolean hasAccount(OfflinePlayer offlinePlayer) {
-        String playerID = offlinePlayer.getUniqueId().toString();
+        UUID playerID = offlinePlayer.getUniqueId();
         try {
             return connector.hasRecord(playerID);
         } catch (Exception e) {
@@ -106,7 +107,7 @@ public class MainEconomy implements Economy {
      */
     @Override
     public double getBalance(OfflinePlayer offlinePlayer) {
-        String playerID = offlinePlayer.getUniqueId().toString();
+        UUID playerID = offlinePlayer.getUniqueId();
         try {
             if (hasAccount(offlinePlayer)) {
                 return connector.getAccount(playerID).getBalance();
@@ -135,9 +136,9 @@ public class MainEconomy implements Economy {
 
     @Override
     public boolean has(OfflinePlayer offlinePlayer, double amount) {
-        String playerID = offlinePlayer.getUniqueId().toString();
+        UUID playerID = offlinePlayer.getUniqueId();
         double currBalance;
-        if (!hasAccount(playerID)) {
+        if (!hasAccount(playerID.toString())) {
             currBalance = 0;
             connector.setBalance(playerID, 0);
         } else {
@@ -178,7 +179,7 @@ public class MainEconomy implements Economy {
             return new EconomyResponse(0, currentBalance, EconomyResponse.ResponseType.FAILURE, null);
         }
 
-        connector.setBalance(offlinePlayer.getUniqueId().toString(), currentBalance - v);
+        connector.setBalance(offlinePlayer.getUniqueId(), currentBalance - v);
 
         FileConfiguration configuration = ConfigLoader.getConfiguration();
         if (offlinePlayer.isOnline() && offlinePlayer instanceof Player &&
@@ -207,7 +208,7 @@ public class MainEconomy implements Economy {
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, double v) {
-        String playerID = offlinePlayer.getUniqueId().toString();
+        UUID playerID = offlinePlayer.getUniqueId();
         if (!hasAccount(offlinePlayer)) {
             return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, null);
         }
@@ -307,7 +308,7 @@ public class MainEconomy implements Economy {
             if (hasAccount(offlinePlayer)) {
                 return true;
             }
-            connector.setBalance(offlinePlayer.getUniqueId().toString(), 0);
+            connector.setBalance(offlinePlayer.getUniqueId(), 0);
             return true;
         } catch (Exception e) {
             return false;

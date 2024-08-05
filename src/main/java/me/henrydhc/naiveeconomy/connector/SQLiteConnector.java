@@ -1,37 +1,22 @@
 package me.henrydhc.naiveeconomy.connector;
 
-import me.henrydhc.naiveeconomy.CoreType;
 import me.henrydhc.naiveeconomy.NaiveEconomy;
 import me.henrydhc.naiveeconomy.account.EcoAccount;
 import me.henrydhc.naiveeconomy.account.NaiveAccount;
-import me.henrydhc.naiveeconomy.config.ConfigLoader;
-import me.henrydhc.naiveeconomy.task.AsyncCacheSaveTask;
-import me.henrydhc.naiveeconomy.task.BukkitAsyncCacheSaveTask;
-import me.henrydhc.naiveeconomy.task.SyncCachePurgeTask;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.sql.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 public class SQLiteConnector implements Connector {
 
-    private ConcurrentMap<String, EcoAccount> accounts;
-    private final int cacheLife;
+    private LinkedHashMap<UUID, EcoAccount> accountCache;
+    private final int maxCacheCount;
     private final Connection connection;
-    private final Plugin plugin;
 
     public SQLiteConnector(NaiveEconomy plugin) throws Exception{
-        accounts = new ConcurrentHashMap<>();
-        cacheLife = 120;
-        this.plugin = plugin;
+        accountCache = new LinkedHashMap<>();
+        maxCacheCount = 100;
 
         if (!checkPath()) {
             throw new Exception();
@@ -39,43 +24,35 @@ public class SQLiteConnector implements Connector {
 
         connection = DriverManager.getConnection("jdbc:sqlite:plugins/NaiveEconomy/data.db");
         initDatabase();
-
-
-        if (plugin.getCoreType() != CoreType.SPIGOT) {
-            AsyncCacheSaveTask task = new AsyncCacheSaveTask(this);
-            SyncCachePurgeTask purgeTask = new SyncCachePurgeTask(this);
-            Bukkit.getScheduler().runTaskTimer(plugin, purgeTask, 60, 20 * 100);
-            Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task, 0, 1, TimeUnit.MINUTES);
-        } else {
-            BukkitAsyncCacheSaveTask task = new BukkitAsyncCacheSaveTask(this);
-            SyncCachePurgeTask purgeTask = new SyncCachePurgeTask(this);
-            Bukkit.getScheduler().runTaskTimer(plugin, purgeTask, 60, 20 * 100);
-            Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, task, 0, 20 * 60);
-        }
     }
 
     @Override
-    public EcoAccount getAccount(String playerID) throws SQLException {
-        if (accounts.containsKey(playerID)) {
-            return accounts.get(playerID);
+    public EcoAccount getAccount(UUID playerID) throws SQLException {
+
+        if (accountCache.containsKey(playerID)) {
+            // Refresh this record in cache
+            EcoAccount account = accountCache.remove(playerID);
+            accountCache.put(playerID, account);
+            return account;
         }
 
         // Try retrieve from the database
         Statement statement = connection.createStatement();
-        String getBalanceSQL = String.format("SELECT balance FROM balance WHERE player_id='%s'",
-            playerID);
+        String getBalanceSQL = String.format("SELECT * FROM balance WHERE player_id='%s'",
+            playerID.toString());
         ResultSet resultSet = statement.executeQuery(getBalanceSQL);
-        if (resultSet.next()) {
+        if (!resultSet.next()) {
             return null;
         } else {
-            EcoAccount account = new NaiveAccount(playerID, resultSet.getDouble("balance"));
-            accounts.put(playerID, account);
+            UUID accountID = UUID.fromString(resultSet.getString("account_id"));
+            EcoAccount account = new NaiveAccount(playerID, accountID, resultSet.getDouble("balance"));
+            saveAccountToCache(account);
             return account;
         }
     }
 
     @Override
-    public boolean setBalance(String playerID, double newValue) {
+    public boolean setBalance(UUID playerID, double newValue) {
         EcoAccount account;
         try {
             account = getAccount(playerID);
@@ -84,53 +61,13 @@ public class SQLiteConnector implements Connector {
         }
 
         if (account == null) {
-            accounts.put(playerID, new NaiveAccount(playerID, newValue));
+            saveAccountToCache(new NaiveAccount(playerID, UUID.randomUUID(), newValue));
         } else {
             account.setBalance(newValue);
         }
         return true;
     }
 
-    /**
-     * Save balance cache into the database
-     */
-    @Override
-    public void saveCache() throws SQLException {
-        Map<String, EcoAccount> copy = new HashMap<>(accounts);
-        Statement statement = connection.createStatement();
-        for (Map.Entry<String, EcoAccount> entry: copy.entrySet()) {
-            String updateSQL = String.format("UPDATE balance SET balance=%.2f WHERE player_id='%s'", entry.getValue().getBalance(),
-                entry.getKey());
-            String newAccountSQL = String.format("INSERT INTO balance VALUES('%s', %.2f)", entry.getKey(), entry.getValue().getBalance());
-            statement.execute(updateSQL);
-            try {
-                statement.execute(newAccountSQL);
-            } catch (SQLException ignored) {
-            }
-        }
-
-        FileConfiguration configuration = ConfigLoader.getConfiguration();
-        if (configuration.getBoolean("enable-cache-messages"))
-            plugin.getLogger().info(String.format("Saved %d cache records", copy.size()));
-    }
-
-    /**
-     * Purge local cache
-     */
-    public void purgeCache() {
-        ConcurrentMap<String, EcoAccount> result = new ConcurrentHashMap<>();
-        long currTime = new Date().getTime();
-        for (Map.Entry<String, EcoAccount> account: accounts.entrySet()) {
-            if (account.getValue().getLastModified() >= currTime - cacheLife * 1000) {
-                result.put(account.getKey(), account.getValue());
-            }
-        }
-
-        FileConfiguration configuration = ConfigLoader.getConfiguration();
-        if (configuration.getBoolean("enable-cache-messages"))
-            plugin.getLogger().info(String.format("Purged %d cache records.", accounts.size() - result.size()));
-        this.accounts = result;
-    }
 
     @Override
     public void close() throws SQLException {
@@ -156,22 +93,99 @@ public class SQLiteConnector implements Connector {
     private void initDatabase() throws SQLException {
         Statement statement = connection.createStatement();
         String initDbSQL = "CREATE TABLE IF NOT EXISTS balance(" +
-            "player_id TEXT PRIMARY KEY NOT NULL, " +
+            "account_id TEXT PRIMARY KEY NOT NULL,"+
+            "player_id TEXT NOT NULL," +
             "balance REAL NOT NULL)";
         statement.execute(initDbSQL);
     }
 
 
     @Override
-    public boolean hasRecord(String playerID) throws SQLException {
-        if (accounts.containsKey(playerID)) {
-            return true;
+    public boolean hasRecord(UUID playerID) throws SQLException {
+        return hasCacheRecord(playerID) || hasDatabaseRecord(playerID);
+    }
+
+    public void saveCache() {
+        Iterator<Map.Entry<UUID, EcoAccount>> iter = accountCache.entrySet().iterator();
+
+        while (iter.hasNext()) {
+            EcoAccount account = iter.next().getValue();
+            try {
+                saveAccount(account);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    /**
+     * Save account data into the database
+     * @param account Economy Account
+     */
+    private void saveAccount(EcoAccount account) throws SQLException{
+        String accountIDStr = account.getAccountUUID().toString();
+        UUID playerID = account.getOwnerUUID();
+        double balance = account.getBalance();
         Statement statement = connection.createStatement();
-        String hasAccountSQL = String.format("SELECT * FROM balance WHERE player_id='%s'", playerID);
+        String saveSQL;
+
+        if (hasDatabaseRecord(account.getOwnerUUID())) {
+            saveSQL =
+                String.format("UPDATE balance SET balance=%.2f WHERE account_id='%s'",
+                    balance, accountIDStr);
+        } else {
+            saveSQL =
+                String.format("INSERT INTO balance VALUES('%s', '%s', %.2f)",
+                    accountIDStr, playerID.toString(), balance);
+        }
+        statement.execute(saveSQL);
+    }
+
+    // Cache functions
+
+    /**
+     * Save Econ account into cache.
+     * If the cache is full, the eldest cache will be ejected and
+     * saved to database.
+     * @param account Econ account
+     */
+    private void saveAccountToCache(EcoAccount account) {
+        UUID playerID = account.getOwnerUUID();
+
+        // Simply update cache
+        if (accountCache.containsKey(playerID)) {
+            accountCache.remove(playerID);
+            accountCache.put(playerID, account);
+            return;
+        }
+
+        // Eject one if the cache is full
+        if (accountCache.size() >= maxCacheCount) {
+            UUID eldestPlayerID = accountCache.entrySet().iterator().next().getKey();
+            EcoAccount eldestAccount = accountCache.remove(eldestPlayerID);
+            try {
+                saveAccount(eldestAccount);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        accountCache.put(playerID, account);
+
+    }
+
+    private boolean hasCacheRecord(UUID playerID) {
+        return accountCache.containsKey(playerID);
+    }
+
+    private boolean hasDatabaseRecord(UUID playerID) throws SQLException{
+        Statement statement = connection.createStatement();
+        String hasAccountSQL = String.format("SELECT * FROM balance WHERE player_id='%s'", playerID.toString());
         ResultSet resultSet = statement.executeQuery(hasAccountSQL);
         if (resultSet.next()) {
-            accounts.put(playerID, new NaiveAccount(playerID, resultSet.getDouble("balance")));
+            UUID accountID = UUID.fromString(resultSet.getString("account_id"));
+            double balance = resultSet.getDouble("balance");
+            saveAccountToCache(new NaiveAccount(playerID, accountID, balance));
             return true;
         } else {
             return false;

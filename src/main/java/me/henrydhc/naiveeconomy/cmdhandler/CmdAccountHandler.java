@@ -48,7 +48,7 @@ public class CmdAccountHandler {
 
         // Try set balance
 
-        if(!connector.setBalance(targetPlayer.getUniqueId().toString(), amount)) {
+        if(!connector.setBalance(targetPlayer.getUniqueId(), amount)) {
             sender.sendMessage("Failed to set money.");
         }
 

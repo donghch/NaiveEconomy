@@ -17,6 +17,5 @@ public class SyncCachePurgeTask implements Consumer<BukkitTask> {
     @Override
     public void accept(BukkitTask bukkitTask) {
         SQLiteConnector sqLiteConnector = (SQLiteConnector) connector;
-        sqLiteConnector.purgeCache();
     }
 }

@@ -1,13 +1,13 @@
 name: NaiveEconomy
-author: dieshenke
+author: dieshenken
 main: me.henrydhc.naiveeconomy.NaiveEconomy
 api-version: 1.19
-version: ${plugin.version}
-description: A simple economy plugin with Paper & Folia aupport
+version: 1.1.0-beta
+description: A Simple Bukkit Economy Plugin with Spigot, Paper, and Folia Support
 folia-supported: true
 commands:
   economy:
-    description: toggle payment
+    description: Do economy operations
     aliases:
       - eco
 load: STARTUP

@@ -97,7 +97,7 @@ public class NaiveEconomy extends JavaPlugin {
             connector.saveCache();
             connector.close();
         } catch (Exception e) {
-            logger.severe("Failed to conduct database cleanup. Data might be lost");
+            logger.severe("Failed to conduct database cleanup. Data might lost");
         }
         getServer().getServicesManager().unregisterAll(this);
         logger.info("Economy Service Unregistered");

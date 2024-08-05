@@ -187,6 +187,7 @@ public class MainEconomy implements Economy {
             Player player = (Player) offlinePlayer;
             player.sendMessage(LangLoader.getMessage("onPluginWithdraw")
                 .replace("{AMOUNT}", format(v)).replace("{UNIT}", v > 1 ? currencyNamePlural():currencyNameSingular()));
+
         }
         return new EconomyResponse(v, currentBalance - v, EconomyResponse.ResponseType.SUCCESS, null);
     }

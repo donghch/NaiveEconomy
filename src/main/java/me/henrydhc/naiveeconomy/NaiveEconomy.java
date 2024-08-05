@@ -85,12 +85,6 @@ public class NaiveEconomy extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (coreType != CoreType.SPIGOT) {
-            Bukkit.getAsyncScheduler().cancelTasks(this);
-            Bukkit.getScheduler().cancelTasks(this);
-        } else {
-            Bukkit.getScheduler().cancelTasks(this);
-        }
 
         try {
             logger.info("Saving balance cache");
